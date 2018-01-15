@@ -1,4 +1,4 @@
-import React, { cloneElement } from 'react';
+import React, { cloneElement, Component } from 'react';
 import PropTypes from 'prop-types';
 import keyMirror from 'keymirror';
 import jsonp from 'jsonp';
@@ -39,10 +39,8 @@ function post(method, value, player, playerOrigin) {
   return null;
 }
 
-export default React.createClass({
-  displayName: 'Vimeo',
-
-  propTypes: {
+export default class Vimeo extends Component {
+  static propTypes = {
     autoplay: PropTypes.bool,
     className: PropTypes.string,
     loading: PropTypes.element,
@@ -63,7 +61,7 @@ export default React.createClass({
     onTextTrackChanged: PropTypes.func,
     onTimeUpdate: PropTypes.func,
     onVolumeChange: PropTypes.func
-  },
+  }
 
   getDefaultProps() {
     const defaults = Object.keys(playerEvents)
@@ -77,7 +75,7 @@ export default React.createClass({
     defaults.playerOptions = { autoplay: 1 };
     defaults.autoplay = false;
     return defaults;
-  },
+  }
 
   getInitialState() {
     return {
@@ -86,7 +84,7 @@ export default React.createClass({
       showingVideo: this.props.autoplay,
       thumb: null
     };
-  },
+  }
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.videoId !== this.props.videoId) {
@@ -96,15 +94,15 @@ export default React.createClass({
         showingVideo: false
       });
     }
-  },
+  }
 
   componentDidMount() {
     this.fetchVimeoData();
-  },
+  }
 
   componentDidUpdate() {
     this.fetchVimeoData();
-  },
+  }
 
   componentWillUnmount() {
     const removeEventListener = typeof window !== 'undefined' ?
@@ -112,7 +110,7 @@ export default React.createClass({
       noop;
 
     removeEventListener('message', this.onMessage);
-  },
+  }
 
   addMessageListener() {
     const addEventListener = typeof window !== 'undefined' ?
@@ -120,14 +118,14 @@ export default React.createClass({
       noop;
 
     addEventListener('message', this.onMessage);
-  },
+  }
 
   onError(err) {
     if (this.props.onError) {
       this.props.onError(err);
     }
     throw err;
-  },
+  }
 
   onMessage({ origin, data }) {
     const { onReady } = this.props;
@@ -168,7 +166,7 @@ export default React.createClass({
     }
     debug('firing event: ', data.event);
     getFuncForEvent(data.event, this.props)(data);
-  },
+  }
 
   onReady(player, playerOrigin) {
     Object.keys(playerEvents).forEach(event => {
@@ -182,18 +180,18 @@ export default React.createClass({
         this.onError(err);
       }
     });
-  },
+  }
 
   playVideo(e) {
     e.preventDefault();
     this.setState({ showingVideo: true });
-  },
+  }
 
   getIframeUrl() {
     const { videoId } = this.props;
     const query = this.getIframeUrlQuery();
     return `//player.vimeo.com/video/${videoId}?${query}`;
-  },
+  }
 
   getIframeUrlQuery() {
     let str = [];
@@ -202,7 +200,7 @@ export default React.createClass({
     });
 
     return str.join('&');
-  },
+  }
 
   fetchVimeoData() {
     if (this.state.imageLoaded) {
@@ -227,7 +225,7 @@ export default React.createClass({
         });
       }
     );
-  },
+  }
 
   renderImage() {
     if (this.state.showingVideo || !this.state.imageLoaded) {
@@ -252,7 +250,7 @@ export default React.createClass({
         {playButton}
       </div>
     );
-  },
+  }
 
   renderIframe() {
     if (!this.state.showingVideo) {
@@ -277,7 +275,7 @@ export default React.createClass({
           src={ this.getIframeUrl() } />
       </div>
     );
-  },
+  }
 
   renderLoading(imageLoaded, loadingElement) {
     if (imageLoaded) {
@@ -289,7 +287,7 @@ export default React.createClass({
     return (
       <Spinner />
     );
-  },
+  }
 
   render() {
     return (
@@ -300,4 +298,4 @@ export default React.createClass({
       </div>
     );
   }
-});
+}
